@@ -1,0 +1,49 @@
+2025-10-31 22:04:12 - INFO - Бот запущен
+2025-10-31 22:09:45 - ERROR - Infinity polling: polling exited
+2025-10-31 22:09:46 - ERROR - Break infinity polling
+2025-10-31 22:10:34 - INFO - Бот запущен
+2025-10-31 22:16:04 - ERROR - Infinity polling: polling exited
+2025-10-31 22:16:05 - ERROR - Break infinity polling
+2025-10-31 22:16:49 - INFO - Бот запущен
+2025-10-31 22:21:16 - ERROR - Infinity polling: polling exited
+2025-10-31 22:21:16 - ERROR - Break infinity polling
+2025-10-31 22:21:48 - INFO - Бот запущен
+2025-10-31 22:24:23 - ERROR - Infinity polling: polling exited
+2025-10-31 22:24:23 - ERROR - Break infinity polling
+2025-10-31 22:25:34 - INFO - Бот запущен
+2025-10-31 22:27:35 - ERROR - Infinity polling: polling exited
+2025-10-31 22:27:35 - ERROR - Break infinity polling
+2025-10-31 22:27:44 - INFO - Бот запущен
+2025-10-31 22:31:23 - ERROR - Infinity polling: polling exited
+2025-10-31 22:31:23 - ERROR - Break infinity polling
+2025-10-31 22:45:44 - INFO - Бот запущен
+2025-10-31 22:46:33 - ERROR - Infinity polling: polling exited
+2025-10-31 22:46:33 - ERROR - Break infinity polling
+2025-10-31 22:47:03 - INFO - Бот запущен
+2025-10-31 22:48:12 - ERROR - Infinity polling: polling exited
+2025-10-31 22:48:12 - ERROR - Break infinity polling
+2025-10-31 22:55:12 - INFO - Бот запущен
+2025-10-31 22:55:43 - ERROR - Ошибка в обработке callback: edit_message_media() got an unexpected keyword argument 'parse_mode'
+2025-10-31 22:56:33 - ERROR - Ошибка в обработке callback: edit_message_media() got an unexpected keyword argument 'parse_mode'
+2025-10-31 23:13:24 - ERROR - Infinity polling: polling exited
+2025-10-31 23:13:24 - ERROR - Break infinity polling
+2025-10-31 23:22:12 - INFO - Бот запущен
+2025-10-31 23:31:57 - ERROR - Infinity polling: polling exited
+2025-10-31 23:31:57 - ERROR - Break infinity polling
+2025-10-31 23:32:03 - INFO - Бот запущен
+2025-10-31 23:33:19 - ERROR - Ошибка при отправке уведомлений о завершении сделки: A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: chat not found
+2025-11-01 11:51:27 - INFO - Бот запущен
+2025-11-01 12:24:20 - ERROR - Infinity polling: polling exited
+2025-11-01 12:24:20 - ERROR - Break infinity polling
+2025-11-05 19:47:16 - INFO - Бот запущен
+2025-11-05 19:59:09 - ERROR - Infinity polling: polling exited
+2025-11-05 19:59:09 - ERROR - Break infinity polling
+2025-11-05 20:03:58 - INFO - Бот запущен
+2025-11-05 20:04:24 - ERROR - Infinity polling: polling exited
+2025-11-05 20:04:24 - ERROR - Break infinity polling
+2025-11-05 20:05:17 - INFO - Бот запущен
+2025-11-05 20:17:44 - ERROR - Infinity polling: polling exited
+2025-11-05 20:17:44 - ERROR - Break infinity polling
+2025-11-05 20:17:50 - INFO - Бот запущен
+2025-11-05 21:19:11 - ERROR - Infinity polling: polling exited
+2025-11-05 21:19:11 - ERROR - Break infinity polling
