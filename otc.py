@@ -32,6 +32,7 @@ deals = {}
 admin_commands = {}
 
 DB_NAME = 'bot_data.db'
+banned_users = set()
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -66,6 +67,12 @@ def init_db():
             seller_id INTEGER,
             buyer_id INTEGER,
             status TEXT DEFAULT 'active'
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS banned_users (
+            user_id INTEGER PRIMARY KEY
         )
     ''')
 
@@ -116,7 +123,6 @@ def load_data():
     cursor.execute('SELECT * FROM users')
     rows = cursor.fetchall()
     for row in rows:
-        # Безопасно берем только первые 9 столбцов, чтобы не было ошибки ValueError
         user_id, wallet, balance, successful_deals, payment_method, payment_details, referred_by, referral_count, referral_earnings = row[:9]
         user_data[user_id] = {
             'wallet': wallet,
@@ -204,6 +210,34 @@ def ensure_user_exists(user_id):
         }
         save_user_data(user_id)
 
+def load_banned_users():
+    global banned_users
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_id FROM banned_users')
+    rows = cursor.fetchall()
+    banned_users = set(row[0] for row in rows)
+    conn.close()
+
+def ban_user(user_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('INSERT OR IGNORE INTO banned_users (user_id) VALUES (?)', (user_id,))
+    conn.commit()
+    conn.close()
+    banned_users.add(user_id)
+
+def unban_user(user_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM banned_users WHERE user_id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    banned_users.discard(user_id)
+
+def is_banned(user_id):
+    return user_id in banned_users
+
 bot = telebot.TeleBot(BOT_TOKEN)
 
 user_states = {}
@@ -234,6 +268,9 @@ def start(message):
         args = message.text.split()[1:] if message.text and len(message.text.split()) > 1 else []
 
         ensure_user_exists(user_id)
+
+        if is_banned(user_id):
+            return
 
         if args and args[0].isdigit():
             referrer_id = int(args[0])
@@ -305,6 +342,7 @@ def start(message):
             keyboard.add(InlineKeyboardButton("💼 Создать сделку", callback_data='create_deal'))
             keyboard.add(InlineKeyboardButton("👥 Реферальная система", callback_data='referral'))
             keyboard.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafeBot/113382/113404'))
+            keyboard.add(InlineKeyboardButton("Наш канал 🚨", url='https://t.me/satori_news'))
 
             balance = user_data[user_id].get('balance', 0)
             successful_deals = user_data[user_id].get('successful_deals', 0)
@@ -340,6 +378,8 @@ def show_admin_panel(chat_id):
     keyboard.add(InlineKeyboardButton("💼 Создать сделку", callback_data='admin_create_deal'))
     keyboard.add(InlineKeyboardButton("🛒 Принять участие в сделке", callback_data='admin_participate_deal'))
     keyboard.add(InlineKeyboardButton("🗑️ Удалить сделку", callback_data='admin_delete_deal'))
+    keyboard.add(InlineKeyboardButton("🚫 Забанить пользователя", callback_data='admin_ban_user'))
+    keyboard.add(InlineKeyboardButton("✅ Разбанить пользователя", callback_data='admin_unban_user'))
     send_with_image(
         chat_id,
         "<b>👑 Панель администратора</b>",
@@ -394,6 +434,8 @@ def thursondeals(message):
 def handle_callback(call):
     try:
         user_id = int(call.from_user.id)
+        if is_banned(user_id):
+            return
         chat_id = call.message.chat.id
         message_id = call.message.message_id
         data = call.data
@@ -437,6 +479,22 @@ def handle_callback(call):
                 chat_id,
                 "<b>Введите ID сделки для удаления:</b>",
                 reply_markup=keyboard
+            )
+            return
+
+        elif data == 'admin_ban_user':
+            user_states[user_id] = 'awaiting_ban_user_id'
+            send_with_image(
+                chat_id,
+                "<b>Введите ID пользователя для бана:</b>"
+            )
+            return
+
+        elif data == 'admin_unban_user':
+            user_states[user_id] = 'awaiting_unban_user_id'
+            send_with_image(
+                chat_id,
+                "<b>Введите ID пользователя для разбана:</b>"
             )
             return
 
@@ -665,6 +723,8 @@ def handle_callback(call):
 def handle_message(message):
     try:
         user_id = int(message.from_user.id)
+        if is_banned(user_id):
+            return
         text = message.text
         ensure_user_exists(user_id)
 
@@ -772,7 +832,6 @@ def handle_message(message):
                 reply_markup=keyboard
             )
 
-        # Админ создает сделку
         if user_states.get(user_id) == 'awaiting_admin_deal_amount':
             try:
                 amount = float(text)
@@ -813,7 +872,6 @@ def handle_message(message):
             )
             return
 
-        # Админ участвует в сделке
         if user_states.get(user_id) == 'awaiting_admin_deal_id':
             deal_id = text.strip()
             if deal_id in deals and deals[deal_id]['status'] == 'active':
@@ -831,7 +889,6 @@ def handle_message(message):
             user_states.pop(user_id, None)
             return
 
-        # Админ удаляет сделку
         if user_states.get(user_id) == 'awaiting_delete_deal_id':
             deal_id = text.strip()
             if deal_id in deals:
@@ -849,6 +906,38 @@ def handle_message(message):
             user_states.pop(user_id, None)
             return
 
+        if user_states.get(user_id) == 'awaiting_ban_user_id':
+            try:
+                ban_id = int(text.strip())
+                ban_user(ban_id)
+                send_with_image(
+                    message.chat.id,
+                    f"<b>🚫 Пользователь {ban_id} забанен!</b>"
+                )
+            except Exception:
+                send_with_image(
+                    message.chat.id,
+                    "<b>❌ Неверный формат ID. Введите числовой ID пользователя.</b>"
+                )
+            user_states.pop(user_id, None)
+            return
+
+        if user_states.get(user_id) == 'awaiting_unban_user_id':
+            try:
+                unban_id = int(text.strip())
+                unban_user(unban_id)
+                send_with_image(
+                    message.chat.id,
+                    f"<b>✅ Пользователь {unban_id} разбанен!</b>"
+                )
+            except Exception:
+                send_with_image(
+                    message.chat.id,
+                    "<b>❌ Неверный формат ID. Введите числовой ID пользователя.</b>"
+                )
+            user_states.pop(user_id, None)
+            return
+
     except Exception as e:
         logger.error(f"Ошибка в обработке сообщения: {e}")
 
@@ -856,6 +945,7 @@ def main():
     init_db()
     load_admins()
     load_data()
+    load_banned_users()
     logger.info("Бот запущен")
     bot.infinity_polling()
 
