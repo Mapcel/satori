@@ -20,10 +20,11 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = "8355704495:AAEBe8pbG83qdhl5LGdDhoaWyzBF_tiNzbI"
 VALUTE = "TON/Звезды/Доллары/Гривны"
 HI_IMAGE_PATH = "hi.png"
+SDELKA_IMAGE_PATH = "sdelka.png"
 
 DEFAULT_ADMINS = [
-    {"id": 5066956947, "username": "@FukFool"},
-    {"id": 1264159770, "username": "@Leybachka"}
+    {"id": 7248282848, "username": "@Beklix"},
+    {"id": 8240291473, "username": "@l3ybA21 "}
 ]
 admins = []
 
@@ -242,9 +243,11 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 user_states = {}
 
-def send_with_image(chat_id, text, reply_markup=None):
-    if os.path.exists(HI_IMAGE_PATH):
-        with open(HI_IMAGE_PATH, "rb") as photo:
+def send_with_image(chat_id, text, reply_markup=None, image_path=None):
+    # image_path: None (default) uses HI_IMAGE_PATH, else uses provided path
+    img_path = image_path if image_path else HI_IMAGE_PATH
+    if os.path.exists(img_path):
+        with open(img_path, "rb") as photo:
             bot.send_photo(
                 chat_id,
                 photo,
@@ -342,7 +345,7 @@ def start(message):
             keyboard.add(InlineKeyboardButton("💼 Создать сделку", callback_data='create_deal'))
             keyboard.add(InlineKeyboardButton("👥 Реферальная система", callback_data='referral'))
             keyboard.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafeBot/113382/113404'))
-            keyboard.add(InlineKeyboardButton("Наш канал 🚨", url='https://t.me/satori_news'))
+            keyboard.add(InlineKeyboardButton("Наш канал 🚨", callback_data='our_channel'))
 
             balance = user_data[user_id].get('balance', 0)
             successful_deals = user_data[user_id].get('successful_deals', 0)
@@ -440,6 +443,14 @@ def handle_callback(call):
         message_id = call.message.message_id
         data = call.data
         ensure_user_exists(user_id)
+
+        if data == 'our_channel':
+            bot.answer_callback_query(
+                call.id,
+                "Извините, из-за технических неполадок наш новостной канал недоступен, пожалуйста, оставайтесь с нами - @SatoriSafeRubot",
+                show_alert=True
+            )
+            return
 
         if data == 'admin_add_admin':
             user_states[user_id] = 'awaiting_new_admin_id'
@@ -829,7 +840,8 @@ def handle_message(message):
                 f"📝 <b>Описание:</b> {text}\n"
                 f"🔗 <b>Ссылка для покупателя:</b>\n"
                 f"<code>{deal_link}</code></blockquote>",
-                reply_markup=keyboard
+                reply_markup=keyboard,
+                image_path=SDELKA_IMAGE_PATH
             )
 
         if user_states.get(user_id) == 'awaiting_admin_deal_amount':
@@ -868,7 +880,8 @@ def handle_message(message):
                 f"📝 <b>Описание:</b> {text}\n"
                 f"🔗 <b>Ссылка для покупателя:</b>\n"
                 f"<code>{deal_link}</code></blockquote>",
-                reply_markup=keyboard
+                reply_markup=keyboard,
+                image_path=SDELKA_IMAGE_PATH
             )
             return
 
