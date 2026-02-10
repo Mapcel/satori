@@ -36,9 +36,8 @@ DB_NAME = 'bot_data.db'
 banned_users = set()
 
 def init_db():
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY,
@@ -52,14 +51,12 @@ def init_db():
             referral_earnings REAL DEFAULT 0
         )
     ''')
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS admins (
             admin_id INTEGER PRIMARY KEY,
             username TEXT
         )
     ''')
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS deals (
             deal_id TEXT PRIMARY KEY,
@@ -70,19 +67,17 @@ def init_db():
             status TEXT DEFAULT 'active'
         )
     ''')
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS banned_users (
             user_id INTEGER PRIMARY KEY
         )
     ''')
-
     conn.commit()
     conn.close()
 
 def load_admins():
     global admins
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
     cursor.execute('SELECT admin_id, username FROM admins')
     rows = cursor.fetchall()
@@ -97,7 +92,7 @@ def load_admins():
     conn.close()
 
 def add_admin(admin_id, username):
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
     cursor.execute('INSERT OR IGNORE INTO admins (admin_id, username) VALUES (?, ?)', (admin_id, username))
     conn.commit()
@@ -118,9 +113,8 @@ def get_admin_ids():
     return [int(adm["id"]) for adm in admins]
 
 def load_data():
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
-    
     cursor.execute('SELECT * FROM users')
     rows = cursor.fetchall()
     for row in rows:
@@ -135,7 +129,6 @@ def load_data():
             'referral_count': referral_count or 0,
             'referral_earnings': referral_earnings or 0
         }
-    
     cursor.execute('SELECT * FROM deals WHERE status = "active" OR status = "paid"')
     rows = cursor.fetchall()
     for row in rows:
@@ -147,55 +140,78 @@ def load_data():
             'buyer_id': buyer_id,
             'status': status
         }
-    
     conn.close()
 
 def save_user_data(user_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    user = user_data.get(user_id, {})
-    cursor.execute('''
-        INSERT OR REPLACE INTO users (user_id, wallet, balance, successful_deals, 
-        payment_method, payment_details, referred_by, referral_count, referral_earnings)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        user_id, 
-        user.get('wallet', ''), 
-        user.get('balance', 0.0), 
-        user.get('successful_deals', 0), 
-        user.get('payment_method'),
-        user.get('payment_details'),
-        user.get('referred_by'),
-        user.get('referral_count', 0),
-        user.get('referral_earnings', 0)
-    ))
-    conn.commit()
-    conn.close()
+    for _ in range(3):
+        try:
+            conn = sqlite3.connect(DB_NAME, timeout=10)
+            cursor = conn.cursor()
+            user = user_data.get(user_id, {})
+            cursor.execute('''
+                INSERT OR REPLACE INTO users (user_id, wallet, balance, successful_deals, 
+                payment_method, payment_details, referred_by, referral_count, referral_earnings)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                user_id, 
+                user.get('wallet', ''), 
+                user.get('balance', 0.0), 
+                user.get('successful_deals', 0), 
+                user.get('payment_method'),
+                user.get('payment_details'),
+                user.get('referred_by'),
+                user.get('referral_count', 0),
+                user.get('referral_earnings', 0)
+            ))
+            conn.commit()
+            conn.close()
+            break
+        except sqlite3.OperationalError:
+            time.sleep(1)
+            continue
 
 def save_deal(deal_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    deal = deals.get(deal_id, {})
-    cursor.execute('''
-        INSERT OR REPLACE INTO deals (deal_id, amount, description, seller_id, buyer_id, status)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (deal_id, deal.get('amount', 0.0), deal.get('description', ''), deal.get('seller_id', None), deal.get('buyer_id', None), deal.get('status', 'active')))
-    conn.commit()
-    conn.close()
+    for _ in range(3):
+        try:
+            conn = sqlite3.connect(DB_NAME, timeout=10)
+            cursor = conn.cursor()
+            deal = deals.get(deal_id, {})
+            cursor.execute('''
+                INSERT OR REPLACE INTO deals (deal_id, amount, description, seller_id, buyer_id, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (deal_id, deal.get('amount', 0.0), deal.get('description', ''), deal.get('seller_id', None), deal.get('buyer_id', None), deal.get('status', 'active')))
+            conn.commit()
+            conn.close()
+            break
+        except sqlite3.OperationalError:
+            time.sleep(1)
+            continue
 
 def update_deal_status(deal_id, status):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('UPDATE deals SET status = ? WHERE deal_id = ?', (status, deal_id))
-    conn.commit()
-    conn.close()
+    for _ in range(3):
+        try:
+            conn = sqlite3.connect(DB_NAME, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute('UPDATE deals SET status = ? WHERE deal_id = ?', (status, deal_id))
+            conn.commit()
+            conn.close()
+            break
+        except sqlite3.OperationalError:
+            time.sleep(1)
+            continue
 
 def delete_deal(deal_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM deals WHERE deal_id = ?', (deal_id,))
-    conn.commit()
-    conn.close()
+    for _ in range(3):
+        try:
+            conn = sqlite3.connect(DB_NAME, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM deals WHERE deal_id = ?', (deal_id,))
+            conn.commit()
+            conn.close()
+            break
+        except sqlite3.OperationalError:
+            time.sleep(1)
+            continue
 
 def ensure_user_exists(user_id):
     if user_id not in user_data:
@@ -213,7 +229,7 @@ def ensure_user_exists(user_id):
 
 def load_banned_users():
     global banned_users
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=10)
     cursor = conn.cursor()
     cursor.execute('SELECT user_id FROM banned_users')
     rows = cursor.fetchall()
@@ -221,47 +237,70 @@ def load_banned_users():
     conn.close()
 
 def ban_user(user_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('INSERT OR IGNORE INTO banned_users (user_id) VALUES (?)', (user_id,))
-    conn.commit()
-    conn.close()
-    banned_users.add(user_id)
+    for _ in range(3):
+        try:
+            conn = sqlite3.connect(DB_NAME, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute('INSERT OR IGNORE INTO banned_users (user_id) VALUES (?)', (user_id,))
+            conn.commit()
+            conn.close()
+            banned_users.add(user_id)
+            break
+        except sqlite3.OperationalError:
+            time.sleep(1)
+            continue
 
 def unban_user(user_id):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM banned_users WHERE user_id = ?', (user_id,))
-    conn.commit()
-    conn.close()
-    banned_users.discard(user_id)
+    for _ in range(3):
+        try:
+            conn = sqlite3.connect(DB_NAME, timeout=10)
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM banned_users WHERE user_id = ?', (user_id,))
+            conn.commit()
+            conn.close()
+            banned_users.discard(user_id)
+            break
+        except sqlite3.OperationalError:
+            time.sleep(1)
+            continue
 
 def is_banned(user_id):
     return user_id in banned_users
 
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(BOT_TOKEN, threaded=True, num_threads=4)
 
 user_states = {}
 
 def send_with_image(chat_id, text, reply_markup=None, image_path=None):
-    # image_path: None (default) uses HI_IMAGE_PATH, else uses provided path
     img_path = image_path if image_path else HI_IMAGE_PATH
-    if os.path.exists(img_path):
-        with open(img_path, "rb") as photo:
-            bot.send_photo(
+    try:
+        if os.path.exists(img_path):
+            with open(img_path, "rb") as photo:
+                bot.send_photo(
+                    chat_id,
+                    photo,
+                    caption=text,
+                    reply_markup=reply_markup,
+                    parse_mode='HTML'
+                )
+        else:
+            bot.send_message(
                 chat_id,
-                photo,
-                caption=text,
+                text,
                 reply_markup=reply_markup,
                 parse_mode='HTML'
             )
-    else:
-        bot.send_message(
-            chat_id,
-            text,
-            reply_markup=reply_markup,
-            parse_mode='HTML'
-        )
+    except Exception as e:
+        logger.error(f"Ошибка при отправке изображения: {e}")
+        try:
+            bot.send_message(
+                chat_id,
+                text,
+                reply_markup=reply_markup,
+                parse_mode='HTML'
+            )
+        except Exception as e2:
+            logger.error(f"Ошибка при отправке сообщения: {e2}")
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -287,7 +326,6 @@ def start(message):
             deal_id = args[0]
             if deal_id in deals and deals[deal_id]['status'] == 'active':
                 deal = deals[deal_id]
-                
                 if user_id == deal['seller_id']:
                     send_with_image(
                         chat_id,
@@ -295,25 +333,20 @@ def start(message):
                         "<blockquote>Пожалуйста, используйте ссылку для приглашения покупателя.</blockquote>"
                     )
                     return
-                
                 deals[deal_id]['buyer_id'] = user_id
                 save_deal(deal_id)
-                
                 seller_id = deal['seller_id']
                 seller_username = "Неизвестно"
                 try:
                     seller_chat = bot.get_chat(seller_id)
                     seller_username = seller_chat.username if seller_chat.username else "Неизвестно"
-                except:
+                except Exception:
                     pass
-                
                 payment_method = user_data.get(seller_id, {}).get('payment_method', 'Не указан')
                 payment_details = user_data.get(seller_id, {}).get('payment_details', 'Не указан')
-                
                 keyboard = InlineKeyboardMarkup()
                 keyboard.add(InlineKeyboardButton("Подтвердить оплату", callback_data=f'confirm_payment_{deal_id}'))
                 keyboard.add(InlineKeyboardButton("⬅️ Вернуться в меню", callback_data='menu'))
-                
                 message_text = f"""
 <b>💼 Информация о сделке</b>
 
@@ -344,12 +377,11 @@ def start(message):
             keyboard.add(InlineKeyboardButton("💳 Добавить способ оплаты", callback_data='add_payment'))
             keyboard.add(InlineKeyboardButton("💼 Создать сделку", callback_data='create_deal'))
             keyboard.add(InlineKeyboardButton("👥 Реферальная система", callback_data='referral'))
-            keyboard.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafeBot/113382/113404'))
+            keyboard.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafeRubot/113382/113404'))
             keyboard.add(InlineKeyboardButton("Наш канал 🚨", callback_data='our_channel'))
 
             balance = user_data[user_id].get('balance', 0)
             successful_deals = user_data[user_id].get('successful_deals', 0)
-            
             send_with_image(
                 chat_id,
                 f"<b>🎉 Добро пожаловать в SATORI SAFE!</b>\n\n"
@@ -562,7 +594,7 @@ def handle_callback(call):
             )
 
         elif data == 'referral':
-            referral_link = f"https://t.me/SatoriSafeBot?start={user_id}"
+            referral_link = f"https://t.me/SatoriSafeRubot?start={user_id}"
             referral_count = user_data[user_id].get('referral_count', 0)
             referral_earnings = user_data[user_id].get('referral_earnings', 0)
             
@@ -630,7 +662,7 @@ def handle_callback(call):
 
                 seller_keyboard = InlineKeyboardMarkup()
                 seller_keyboard.add(InlineKeyboardButton("✅ Я отправил подарок", callback_data=f'gift_sent_{deal_id}'))
-                seller_keyboard.add(InlineKeyboardButton("🆘 Связаться с поддержкой", url='https://t.me/SatoriSafeBot/113382/113404'))
+                seller_keyboard.add(InlineKeyboardButton("🆘 Связаться с поддержкой", url='https://t.me/SatoriSafeRubot/113382/113404'))
                 
                 send_with_image(
                     seller_id,
@@ -831,7 +863,7 @@ def handle_message(message):
             keyboard = InlineKeyboardMarkup()
             keyboard.add(InlineKeyboardButton("⬅️ Вернуться в меню", callback_data='menu'))
             
-            deal_link = f"https://t.me/SatoriSafeBot?start={deal_id}"
+            deal_link = f"https://t.me/SatoriSafeRubot?start={deal_id}"
             
             send_with_image(
                 message.chat.id,
@@ -872,7 +904,7 @@ def handle_message(message):
             user_states.pop(f'{user_id}_admin_amount', None)
             keyboard = InlineKeyboardMarkup()
             keyboard.add(InlineKeyboardButton("⬅️ Вернуться в меню", callback_data='menu'))
-            deal_link = f"https://t.me/SatoriSafeBot?start={deal_id}"
+            deal_link = f"https://t.me/SatoriSafeRubot?start={deal_id}"
             send_with_image(
                 message.chat.id,
                 f"<b>✅ Сделка успешно создана администратором!</b>\n\n"
@@ -960,7 +992,12 @@ def main():
     load_data()
     load_banned_users()
     logger.info("Бот запущен")
-    bot.infinity_polling()
+    while True:
+        try:
+            bot.infinity_polling(timeout=60, long_polling_timeout=60)
+        except Exception as e:
+            logger.error(f"Ошибка polling: {e}")
+            time.sleep(5)
 
 if __name__ == "__main__":
     main()
