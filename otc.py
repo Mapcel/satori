@@ -18,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 BOT_TOKEN = "8355704495:AAEBe8pbG83qdhl5LGdDhoaWyzBF_tiNzbI"
-VALUTE = "TON/Звезды/Доллары/Гривны"
+VALUTE = "TON/Звезды/Доллары/Гривны/Рубли"
 HI_IMAGE_PATH = "hi.png"
 SDELKA_IMAGE_PATH = "sdelka.png"
 
@@ -377,7 +377,7 @@ def start(message):
             keyboard.add(InlineKeyboardButton("💳 Добавить способ оплаты", callback_data='add_payment'))
             keyboard.add(InlineKeyboardButton("💼 Создать сделку", callback_data='create_deal'))
             keyboard.add(InlineKeyboardButton("👥 Реферальная система", callback_data='referral'))
-            keyboard.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafeRubot/113382/113404'))
+            keyboard.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafe/113382/113404'))
             keyboard.add(InlineKeyboardButton("Наш канал 🚨", callback_data='our_channel'))
 
             balance = user_data[user_id].get('balance', 0)
