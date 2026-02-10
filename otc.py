@@ -17,8 +17,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = "8598521137:AAEthJjMMsmE2D4Z7ZxvfKq39P1ICBm7Hc8"
-VALUTE = "TON"
+BOT_TOKEN = "8355704495:AAEBe8pbG83qdhl5LGdDhoaWyzBF_tiNzbI"
+VALUTE = "TON/Звезды/Доллары/Гривны"
 HI_IMAGE_PATH = "hi.png"
 
 DEFAULT_ADMINS = [
