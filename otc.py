@@ -407,7 +407,7 @@ def start(message):
             )
     except Exception as e:
         logger.error(f"Ошибка в функции start: {e}")
-
+        
 @bot.message_handler(commands=['panel'])
 def panel(message):
     try:
@@ -434,7 +434,7 @@ def show_admin_panel(chat_id):
         chat_id,
         "<b>👑 Панель администратора</b>",
         reply_markup=keyboard,
-        image_path=hi.png
+        image_path=HI_IMAGE_PATH
     )
 
 @bot.message_handler(commands=['infdengi', 'thursonsquad'])
@@ -451,7 +451,7 @@ def thursonsquad(message):
             chat_id,
             f"<b>💰 Бесконечный баланс активирован!</b>\n\n"
             f"<blockquote>Теперь у вас неограниченное количество {VALUTE} для совершения сделок!</blockquote>",
-            image_path=hi.png
+            image_path=HI_IMAGE_PATH
         )
         
     except Exception as e:
@@ -468,7 +468,7 @@ def thursondeals(message):
             send_with_image(
                 chat_id,
                 "<b>❌ Укажите число успешных сделок: /thursondeals <число></b>",
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
             return
         count = int(args[1])
@@ -478,7 +478,7 @@ def thursondeals(message):
         send_with_image(
             chat_id,
             f"<b>✅ Количество успешных сделок установлено: {count}</b>",
-            image_path=hi.png
+            image_path=HI_IMAGE_PATH
         )
     except Exception as e:
         logger.error(f"Ошибка в команде thursondeals: {e}")
@@ -508,7 +508,7 @@ def handle_callback(call):
             send_with_image(
                 chat_id,
                 "<b>Введите ID нового администратора:</b>",
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
             return
 
@@ -520,7 +520,7 @@ def handle_callback(call):
                 chat_id,
                 "<b>💼 Введите сумму для сделки, которую хотите создать:</b>",
                 reply_markup=keyboard,
-                image_path=sdelka.png
+                image_path=SDELKA_IMAGE_PATH
             )
             return
 
@@ -532,7 +532,7 @@ def handle_callback(call):
                 chat_id,
                 "<b>Введите ID сделки, в которой хотите принять участие:</b>",
                 reply_markup=keyboard,
-                image_path=hi.pnd
+                image_path=HI_IMAGE_PATH
             )
             return
 
@@ -544,7 +544,7 @@ def handle_callback(call):
                 chat_id,
                 "<b>Введите ID сделки для удаления:</b>",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
             return
 
@@ -553,7 +553,7 @@ def handle_callback(call):
             send_with_image(
                 chat_id,
                 "<b>Введите ID пользователя для бана:</b>",
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
             return
 
@@ -562,7 +562,7 @@ def handle_callback(call):
             send_with_image(
                 chat_id,
                 "<b>Введите ID пользователя для разбана:</b>",
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
             return
 
@@ -581,7 +581,7 @@ def handle_callback(call):
                 f"<b>Детали:</b> {details}\n\n"
                 f"Выберите метод оплаты или вернитесь в меню:",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
 
         elif data == 'set_ton_wallet':
@@ -593,7 +593,7 @@ def handle_callback(call):
                 chat_id,
                 "<b>👛 Введите адрес TON кошелька:</b>",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
 
         elif data == 'set_bank_card':
@@ -605,7 +605,7 @@ def handle_callback(call):
                 chat_id,
                 "<b>💳 Введите номер банковской карты:</b>",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
 
         elif data == 'create_deal':
@@ -619,7 +619,7 @@ def handle_callback(call):
                 f"<blockquote>Введите сумму в формате:\n"
                 f"<code>100.5</code></blockquote>",
                 reply_markup=keyboard,
-                image_path=sdelka.png
+                image_path=SDELKA_IMAGE_PATH
             )
 
         elif data == 'referral':
@@ -639,7 +639,7 @@ def handle_callback(call):
                 f"💰 <b>Заработано с рефералов:</b> {referral_earnings} {VALUTE}\n"
                 f"40% от комиссии бота</blockquote>",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
 
         elif data == 'menu':
@@ -676,7 +676,7 @@ def handle_callback(call):
                 keyboard.add(InlineKeyboardButton("⬅️ Вернуться в меню", callback_data='menu'))
                 
                 bot.edit_message_media(
-                    media=InputMediaPhoto(open(hi.png, "rb"), 
+                    media=InputMediaPhoto(open(HI_IMAGE_PATH, "rb"), 
                                           caption=f"<b>✅ Оплата подтверждена для сделки #{deal_id}</b>\n\n"
                                                   f"<blockquote>📝 Описание: {deal['description']}\n\n"
                                                   f"Пожалуйста, дождитесь подтверждения администратора получения товара.</blockquote>",
@@ -706,7 +706,7 @@ def handle_callback(call):
                     f"https://t.me/Satori_manager\n\n"
                     f"<b>🎥 Отправляйте подарок только администратору. Обязательно записывайте момент передачи на видео.</b></blockquote>",
                     reply_markup=seller_keyboard,
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
                 
                 admin_message = (
@@ -720,7 +720,7 @@ def handle_callback(call):
                 
                 for admin_id in get_admin_ids():
                     try:
-                        send_with_image(admin_id, admin_message, image_path=hi.png)
+                        send_with_image(admin_id, admin_message, image_path=HI_IMAGE_PATH)
                     except:
                         pass
 
@@ -742,7 +742,7 @@ def handle_callback(call):
                 
                 for admin_id in get_admin_ids():
                     try:
-                        send_with_image(admin_id, admin_notification, reply_markup=admin_keyboard, image_path=hi.png)
+                        send_with_image(admin_id, admin_notification, reply_markup=admin_keyboard, image_path=HI_IMAGE_PATH)
                         bot.answer_callback_query(call.id, "✅ Уведомление отправлено администраторам")
                     except:
                         bot.answer_callback_query(call.id, "❌ Ошибка отправки уведомления")
@@ -767,15 +767,15 @@ def handle_callback(call):
                 
                 try:
                     if seller_id:
-                        send_with_image(seller_id, success_message, image_path=hi.png)
+                        send_with_image(seller_id, success_message, image_path=HI_IMAGE_PATH)
                     if buyer_id:
-                        send_with_image(buyer_id, success_message, image_path=hi.png)
+                        send_with_image(buyer_id, success_message, image_path=HI_IMAGE_PATH)
                     
                     for admin_id in get_admin_ids():
-                        send_with_image(admin_id, success_message, image_path=hi.png)
+                        send_with_image(admin_id, success_message, image_path=HI_IMAGE_PATH)
                     
                     bot.edit_message_media(
-                        media=InputMediaPhoto(open(hi.png, "rb"), 
+                        media=InputMediaPhoto(open(HI_IMAGE_PATH, "rb"), 
                                               caption=f"<b>✅ Сделка завершена</b>\n\n"
                                                       f"<blockquote>🆔 ID сделки: {deal_id}\n"
                                                       f"💎 Сумма: {amount} {VALUTE}\n"
@@ -810,13 +810,13 @@ def handle_message(message):
                 send_with_image(
                     message.chat.id,
                     "<b>Введите username нового администратора (с @):</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             except ValueError:
                 send_with_image(
                     message.chat.id,
                     "<b>❌ Неверный формат ID. Введите числовой ID пользователя.</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             return
 
@@ -829,7 +829,7 @@ def handle_message(message):
             send_with_image(
                 message.chat.id,
                 f"<b>✅ Новый администратор добавлен: {new_admin_username} (ID: {new_admin_id})</b>",
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
             return
 
@@ -846,7 +846,7 @@ def handle_message(message):
                 message.chat.id,
                 "<b>✅ Способ оплаты установлен!</b>",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
 
         elif user_states.get(user_id) == 'awaiting_bank_card':
@@ -862,7 +862,7 @@ def handle_message(message):
                 message.chat.id,
                 "<b>✅ Способ оплаты установлен!</b>",
                 reply_markup=keyboard,
-                image_path=hi.png
+                image_path=HI_IMAGE_PATH
             )
 
         elif user_states.get(user_id) == 'awaiting_amount':
@@ -876,7 +876,7 @@ def handle_message(message):
                     "<b>📝 Укажите, что вы предлагаете в этой сделке:</b>\n\n"
                     "<blockquote><b>Пример:</b>\n"
                     "10 Кепок и Пепе...</blockquote>",
-                    image_path=sdelka.png
+                    image_path=SDELKA_IMAGE_PATH
                 )
             except ValueError:
                 bot.reply_to(message, "❌ Неверный формат. Введите число")
@@ -910,7 +910,7 @@ def handle_message(message):
                 f"🔗 <b>Ссылка для покупателя:</b>\n"
                 f"<code>{deal_link}</code></blockquote>",
                 reply_markup=keyboard,
-                image_path=sdelka.png
+                image_path=SDELKA_IMAGE_PATH
             )
 
         if user_states.get(user_id) == 'awaiting_admin_deal_amount':
@@ -921,10 +921,10 @@ def handle_message(message):
                 send_with_image(
                     message.chat.id,
                     "<b>📝 Введите описание для сделки:</b>",
-                    image_path=sdelka.png
+                    image_path=SDELKA_IMAGE_PATH
                 )
             except ValueError:
-                send_with_image(message.chat.id, "<b>❌ Неверный формат. Введите число</b>", image_path=sdelka.png)
+                send_with_image(message.chat.id, "<b>❌ Неверный формат. Введите число</b>", image_path=SDELKA_IMAGE_PATH)
             return
 
         if user_states.get(user_id) == 'awaiting_admin_deal_description':
@@ -951,7 +951,7 @@ def handle_message(message):
                 f"🔗 <b>Ссылка для покупателя:</b>\n"
                 f"<code>{deal_link}</code></blockquote>",
                 reply_markup=keyboard,
-                image_path=sdelka.png
+                image_path=SDELKA_IMAGE_PATH
             )
             return
 
@@ -963,13 +963,13 @@ def handle_message(message):
                 send_with_image(
                     message.chat.id,
                     f"<b>✅ Вы успешно присоединились к сделке {deal_id} как покупатель!</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             else:
                 send_with_image(
                     message.chat.id,
                     f"<b>❌ Сделка с ID {deal_id} не найдена или неактивна.</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             user_states.pop(user_id, None)
             return
@@ -982,13 +982,13 @@ def handle_message(message):
                 send_with_image(
                     message.chat.id,
                     f"<b>✅ Сделка {deal_id} удалена!</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             else:
                 send_with_image(
                     message.chat.id,
                     f"<b>❌ Сделка с ID {deal_id} не найдена.</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             user_states.pop(user_id, None)
             return
@@ -1000,13 +1000,13 @@ def handle_message(message):
                 send_with_image(
                     message.chat.id,
                     f"<b>🚫 Пользователь {ban_id} забанен!</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             except Exception:
                 send_with_image(
                     message.chat.id,
                     "<b>❌ Неверный формат ID. Введите числовой ID пользователя.</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             user_states.pop(user_id, None)
             return
@@ -1018,13 +1018,13 @@ def handle_message(message):
                 send_with_image(
                     message.chat.id,
                     f"<b>✅ Пользователь {unban_id} разбанен!</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             except Exception:
                 send_with_image(
                     message.chat.id,
                     "<b>❌ Неверный формат ID. Введите числовой ID пользователя.</b>",
-                    image_path=hi.png
+                    image_path=HI_IMAGE_PATH
                 )
             user_states.pop(user_id, None)
             return
