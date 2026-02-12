@@ -4,6 +4,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, InputMedia
 import uuid
 import logging
 import os
+import time
 
 logging.basicConfig(
     level=logging.INFO,
@@ -271,12 +272,10 @@ bot = telebot.TeleBot(BOT_TOKEN, threaded=True, num_threads=4)
 
 user_states = {}
 
-def send_with_image(chat_id, text, reply_markup=None, image_path=None):
-    # Always send image with message and buttons.
-    img_path = image_path if image_path else HI_IMAGE_PATH
+def send_with_image(chat_id, text, reply_markup=None, image_path=HI_IMAGE_PATH):
     try:
-        if os.path.exists(img_path):
-            with open(img_path, "rb") as photo:
+        if os.path.exists(image_path):
+            with open(image_path, "rb") as photo:
                 bot.send_photo(
                     chat_id,
                     photo,
@@ -292,7 +291,7 @@ def send_with_image(chat_id, text, reply_markup=None, image_path=None):
                 parse_mode='HTML'
             )
     except Exception as e:
-        logger.error(f"Ошибка при отправке изображения: {e}")
+        logger.error(f"Ошибка при отправке изображения {image_path}: {e}")
         try:
             bot.send_message(
                 chat_id,
@@ -331,7 +330,8 @@ def start(message):
                     send_with_image(
                         chat_id,
                         "<b>❌ Вы не можете участвовать в своей же сделке.</b>\n\n"
-                        "<blockquote>Пожалуйста, используйте ссылку для приглашения покупателя.</blockquote>"
+                        "<blockquote>Пожалуйста, используйте ссылку для приглашения покупателя.</blockquote>",
+                        image_path=HI_IMAGE_PATH
                     )
                     return
                 deals[deal_id]['buyer_id'] = user_id
@@ -365,10 +365,9 @@ def start(message):
 <b>📌 Укажите комментарий:</b>
 <code>{deal_id}</code>
 
-<b>⚠️ Убедитесь в правильности данных перед оплатой. Комментарий обязателен!</b>
-</blockquote>
+<b>⚠️ Убедитесь в правильности данных перед оплатой. Комментарий обязателен!</b></blockquote>
                 """
-                send_with_image(chat_id, message_text, reply_markup=keyboard)
+                send_with_image(chat_id, message_text, reply_markup=keyboard, image_path=SDELKA_IMAGE_PATH)
                 return
 
         if is_admin(user_id):
@@ -407,7 +406,7 @@ def start(message):
             )
     except Exception as e:
         logger.error(f"Ошибка в функции start: {e}")
-        
+
 @bot.message_handler(commands=['panel'])
 def panel(message):
     try:
@@ -879,7 +878,11 @@ def handle_message(message):
                     image_path=SDELKA_IMAGE_PATH
                 )
             except ValueError:
-                bot.reply_to(message, "❌ Неверный формат. Введите число")
+                send_with_image(
+                    message.chat.id,
+                    "❌ Неверный формат. Введите число",
+                    image_path=HI_IMAGE_PATH
+                )
 
         elif user_states.get(user_id) == 'awaiting_description':
             deal_id = str(uuid.uuid4())
@@ -924,7 +927,11 @@ def handle_message(message):
                     image_path=SDELKA_IMAGE_PATH
                 )
             except ValueError:
-                send_with_image(message.chat.id, "<b>❌ Неверный формат. Введите число</b>", image_path=SDELKA_IMAGE_PATH)
+                send_with_image(
+                    message.chat.id,
+                    "<b>❌ Неверный формат. Введите число</b>",
+                    image_path=HI_IMAGE_PATH
+                )
             return
 
         if user_states.get(user_id) == 'awaiting_admin_deal_description':
