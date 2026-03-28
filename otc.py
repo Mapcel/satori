@@ -574,16 +574,31 @@ def handle_callback(call):
             )
 
             for admin_id in get_admin_ids():
-                send_with_image(admin_id, f"<b>Новая оплаченная сделка</b>\n🆔 {deal_id}", image_path=HI_IMAGE_PATH)
+                send_with_image(admin_id, f"<b>Новая оплаченная сделка</b>\n🆔 {deal_id}\n👤 Продавец ID: {seller_id}\n👤 Покупатель ID: {buyer_id}", image_path=HI_IMAGE_PATH)
 
         if data.startswith('gift_sent_'):
             deal_id = data.split('_')[-1]
             if deal_id in deals and deals[deal_id]['status'] == 'paid':
+                deal = deals[deal_id]
                 for admin_id in get_admin_ids():
                     kb = InlineKeyboardMarkup()
                     kb.add(InlineKeyboardButton("🏁 Завершить", callback_data=f'complete_deal_{deal_id}'))
-                    send_with_image(admin_id, f"<b>📦 Продавец отправил товар</b>\n🆔 {deal_id}", reply_markup=kb, image_path=HI_IMAGE_PATH)
-                bot.answer_callback_query(call.id, "✅ Уведомлено админам")
+                    send_with_image(admin_id, f"<b>📦 Продавец отправил товар</b>\n🆔 {deal_id}\n👤 Продавец ID: {deal['seller_id']}\n👤 Покупатель ID: {deal['buyer_id']}", reply_markup=kb, image_path=HI_IMAGE_PATH)
+                
+                # НОВАЯ МЕХАНИКА: даём покупателю кнопку подтверждения получения
+                buyer_id = deal.get('buyer_id')
+                if buyer_id:
+                    confirm_kb = InlineKeyboardMarkup(row_width=1)
+                    confirm_kb.add(InlineKeyboardButton("✅ Я получил товар", callback_data=f'confirm_receipt_{deal_id}'))
+                    confirm_kb.add(InlineKeyboardButton("⬅️ В меню", callback_data='menu'))
+                    send_with_image(
+                        buyer_id,
+                        f"<b>📦 Продавец отправил товар по сделке</b>\n\n🆔 <code>{deal_id}</code>\n\nПодтвердите получение товара.\nПосле вашего подтверждения сделка завершится автоматически.",
+                        reply_markup=confirm_kb,
+                        image_path=HI_IMAGE_PATH
+                    )
+                
+                bot.answer_callback_query(call.id, "✅ Уведомлено админам и покупателю")
 
         if data.startswith('complete_deal_'):
             if not is_admin(user_id):
@@ -598,6 +613,25 @@ def handle_callback(call):
                     if uid:
                         send_with_image(uid, msg, image_path=HI_IMAGE_PATH)
                 bot.edit_message_caption(f"<b>✅ Сделка {deal_id} завершена</b>", chat_id=chat_id, message_id=message_id)
+
+        # НОВАЯ МЕХАНИКА: покупатель подтверждает получение — сделка завершается автоматически
+        if data.startswith('confirm_receipt_'):
+            deal_id = data.split('_')[-1]
+            if deal_id in deals and deals[deal_id]['status'] == 'paid':
+                deal = deals[deal_id]
+                if deal.get('buyer_id') != user_id:
+                    bot.answer_callback_query(call.id, "❌ Вы не являетесь покупателем этой сделки")
+                    return
+                deals[deal_id]['status'] = 'completed'
+                update_deal_status(deal_id, 'completed')
+                msg = "<b>✅ Сделка завершена успешно!\nПокупатель подтвердил получение товара.</b>"
+                for uid in [deal['seller_id'], deal['buyer_id']] + get_admin_ids():
+                    if uid:
+                        send_with_image(uid, msg, image_path=HI_IMAGE_PATH)
+                bot.answer_callback_query(call.id, "✅ Сделка завершена автоматически")
+            else:
+                bot.answer_callback_query(call.id, "❌ Сделка уже завершена или не найдена")
+            return
 
         # Админские состояния (оставлены как в оригинале)
         if data == 'admin_add_admin':
