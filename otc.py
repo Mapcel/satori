@@ -729,13 +729,13 @@ def handle_message(message):
             
             full_text = f"""<b>✅ Сделка создана!</b>
 
-🆔 <code>{deal_id}</code>
-💰 {amount} {currency}
-📋 {text}
+        🆔 <code>{deal_id}</code>
+        💰 {amount} {currency}
+        📋 {text}
 
-🔗 <code>{link}</code>
+        🔗 <code>{link}</code>
 
-<blockquote>⚠️ Обязательно отправляйте товар на официальный аккаунт поддержки сервиса!</blockquote>"""
+        <blockquote>⚠️ Обязательно отправляйте товар на официальный аккаунт поддержки сервиса!</blockquote>"""
 
             send_with_image(
                 chat_id, 
@@ -745,7 +745,7 @@ def handle_message(message):
             )
             return
         # Админские состояния (оригинальные)
-        if state == 'awaiting_new_admin_id':
+       if state == 'awaiting_new_admin_id':
             try:
                 new_id = int(text)
                 user_states[user_id] = 'awaiting_new_admin_username'
@@ -755,7 +755,7 @@ def handle_message(message):
                 send_with_image(chat_id, "<b>❌ Неверный ID</b>", image_path=HI_IMAGE_PATH)
             return
 
-        if state == 'awaiting_new_admin_username':
+      if state == 'awaiting_new_admin_username':
             new_id = user_states.get('new_admin_id')
             add_admin(new_id, text)
             user_states.pop(user_id, None)
