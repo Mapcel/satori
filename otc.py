@@ -702,7 +702,7 @@ def handle_message(message):
                 send_with_image(chat_id, "❌ Введите число", image_path=HI_IMAGE_PATH)
             return
 
-               if state == 'awaiting_description':
+         if state == 'awaiting_description':
             amount = user_states.get(f'{user_id}_amount', 0)
             currency = user_states.get(f'{user_id}_currency', 'USD')
             deal_id = str(uuid.uuid4())[:8].upper()
@@ -717,11 +717,10 @@ def handle_message(message):
             }
             save_deal(deal_id)
             
+            # Очистка состояний
             user_states.pop(user_id, None)
-            if f'{user_id}_amount' in user_states:
-                del user_states[f'{user_id}_amount']
-            if f'{user_id}_currency' in user_states:
-                del user_states[f'{user_id}_currency']
+            user_states.pop(f'{user_id}_amount', None)
+            user_states.pop(f'{user_id}_currency', None)
 
             kb = InlineKeyboardMarkup()
             kb.add(InlineKeyboardButton("⬅️ Меню", callback_data='menu'))
