@@ -702,11 +702,11 @@ def handle_message(message):
                 send_with_image(chat_id, "❌ Введите число", image_path=HI_IMAGE_PATH)
             return
 
-        if state == 'awaiting_description':
+               if state == 'awaiting_description':
             amount = user_states.get(f'{user_id}_amount', 0)
             currency = user_states.get(f'{user_id}_currency', 'USD')
             deal_id = str(uuid.uuid4())[:8].upper()
-
+            
             deals[deal_id] = {
                 'amount': amount,
                 'currency': currency,
@@ -716,7 +716,7 @@ def handle_message(message):
                 'status': 'active'
             }
             save_deal(deal_id)
-
+            
             user_states.pop(user_id, None)
             if f'{user_id}_amount' in user_states:
                 del user_states[f'{user_id}_amount']
@@ -725,21 +725,26 @@ def handle_message(message):
 
             kb = InlineKeyboardMarkup()
             kb.add(InlineKeyboardButton("⬅️ Меню", callback_data='menu'))
+            
             link = f"https://t.me/SatoriSafeRubot?start={deal_id}"
+            
+            full_text = f"""<b>✅ Сделка создана!</b>
+
+🆔 <code>{deal_id}</code>
+💰 {amount} {currency}
+📋 {text}
+
+🔗 <code>{link}</code>
+
+<blockquote>⚠️ Обязательно отправляйте товар на официальный аккаунт поддержки сервиса!</blockquote>"""
 
             send_with_image(
-                chat_id,
-                f"<b>✅ Сделка создана!</b>\n\n"
-                f"🆔 <code>{deal_id}</code>\n"
-                f"💰 {amount} {currency}\n"
-                f"📋 {text}\n\n"
-                f"🔗 <code>{link}</code>",
-                f"<blockquote>⚠️ Обязательно отправляйте товар на официальный аккаунт поддержки сервиса!</blockquote>",
-                kb,
-                SDELKA_IMAGE_PATH
+                chat_id, 
+                full_text, 
+                reply_markup=kb, 
+                image_path=SDELKA_IMAGE_PATH
             )
             return
-
         # Админские состояния (оригинальные)
         if state == 'awaiting_new_admin_id':
             try:
