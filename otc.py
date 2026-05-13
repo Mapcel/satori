@@ -304,7 +304,7 @@ def send_main_menu(chat_id, user_id):
         InlineKeyboardButton("👥 Рефералы", callback_data='referral')
     )
     keyboard.add(
-        InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafe/113382/113404'),
+        InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriHelp/113382/113404'),
         InlineKeyboardButton("Наш канал 🚨", url='https://t.me/satori_media')
     )
     successful_deals = user_data[user_id].get('successful_deals', 0)
@@ -564,7 +564,7 @@ def handle_callback(call):
 
             seller_kb = InlineKeyboardMarkup()
             seller_kb.add(InlineKeyboardButton("✅ Я отправил товар", callback_data=f'gift_sent_{deal_id}'))
-            seller_kb.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriSafe/113382/113404'))
+            seller_kb.add(InlineKeyboardButton("🆘 Поддержка", url='https://t.me/SatoriHelp/113382/113404'))
 
             send_with_image(
                 seller_id,
@@ -598,7 +598,7 @@ def handle_callback(call):
                         image_path=HI_IMAGE_PATH
                     )
                 
-                bot.answer_callback_query(call.id, "✅ Уведомлено админам и покупателю")
+                bot.answer_callback_query(call.id, "✅ Уведомлено администрации и покупателю")
 
         if data.startswith('complete_deal_'):
             if not is_admin(user_id):
@@ -734,6 +734,7 @@ def handle_message(message):
                 f"💰 {amount} {currency}\n"
                 f"📋 {text}\n\n"
                 f"🔗 <code>{link}</code>",
+                f"<blockquote>⚠️ Обязательно отправляйте товар на официальный аккаунт поддержки сервиса!</blockquote>",
                 kb,
                 SDELKA_IMAGE_PATH
             )
